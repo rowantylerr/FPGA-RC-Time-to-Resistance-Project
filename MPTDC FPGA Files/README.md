@@ -114,3 +114,4 @@ The four timers together capture the `step_input` edge to within one 0°-clock c
 - Only the phase-0 `overflow` flag is monitored. In practice all four counters overflow simultaneously, so this is safe, but a more rigorous implementation would check all four.
 - Debug output ports (`dbg_counter_200`, `dbg_counter`, `dbg_pll_locked`, `test`) should be removed for a production build.
 - The `enable` input is synchronised to the 200 MHz domain in this design (unlike the 50 MHz and 200 MHz variants where it is used directly). This is the correct approach and should be back-ported to the other designs.
+- The MPTDC implementation is not able to obtain accuracies comparable to the 200 MHz and 50 MHz implementations. There is likely a bug in the code that has not been found and resolved.
