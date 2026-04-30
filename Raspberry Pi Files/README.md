@@ -40,6 +40,7 @@ Also add `enable_uart=1` to `/boot/config.txt` and reboot.
 | `timer_std_dev.py`        | Collect 1000 counts (uses DS3502 digital potentiometer)              | `std_dev_output.txt` |
 | `timer_std_dev_fixed.py`  | Collect 1000 counts (fixed resistor, no DS3502)                     | `std_dev_output.txt` |
 | `timer_stream.py`         | Stream live counts over TCP to a remote laptop                       | (network only)       |
+| `timer_testsuite.py`      | Collect 10 raw counts at each wiper value of the potentiometer      | `testsuite_output.txt` |
 
 ---
 
@@ -51,13 +52,13 @@ sudo apt-get install python3-pip python3-serial
 ```
 To install the library required to program the digital potentiometer see: https://cdn-learn.adafruit.com/downloads/pdf/ds3502-i2c-potentiometer.pdf
 
-> **Note:** `adafruit-circuitpython-ds3502` is only required by `timer_fixed_resistor.py`, `timer_std_dev.py`, and `timer_stream.py`. These scripts import it but do not use it in their current form — it is a leftover import from an earlier version that used a DS3502 digital potentiometer. It can be safely ignored if the DS3502 is not connected.
+> **Note:** `adafruit-circuitpython-ds3502` is only required by `timer_testsuite.py`. Other scripts import it but do not use it in their current form — it is a leftover import from an earlier version that used a DS3502 digital potentiometer. It can be safely ignored if the DS3502 is not connected.
 
 ---
 
 ## How to Run
 
-### Calibration Data Collection (`timer_fixed_resistor.py`)
+### Calibration Data Collection for Fixed Resistors(`timer_fixed_resistor.py`)
 
 Connects known resistors one at a time and records 100 measurements per resistor. Used to generate input data for the calibration scripts.
 
@@ -71,7 +72,19 @@ The script will prompt for a resistance value, collect 100 FPGA counts, then pro
 <resistance_ohms> <count_1> <count_2> ... <count_100>
 ```
 
-> **Known issue:** This script is missing `GPIO.setmode(GPIO.BCM)` and `GPIO.setwarnings(False)` at the top, which are present in the other scripts. Ensure the GPIO mode is set (BCM) before running, or add these lines to the script.
+### Calibration Data Collection for Digital Potentiometer (`timer_fixed_resistor.py`)
+
+Records 10 measurements per wiper value. Used to generate input data for the calibration scripts.
+
+```bash
+python3 timer_testuite.py
+```
+
+Press `Ctrl+C` to stop. Results are appended to `testsuite_output.txt` in the format:
+
+```
+<wiper_value> <count_1> <count_2> ... <count_10>
+```
 
 ---
 
