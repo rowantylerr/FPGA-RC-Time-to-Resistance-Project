@@ -72,9 +72,9 @@ The script will prompt for a resistance value, collect 100 FPGA counts, then pro
 <resistance_ohms> <count_1> <count_2> ... <count_100>
 ```
 
-### Calibration Data Collection for Digital Potentiometer (`timer_fixed_resistor.py`)
+### Calibration Data Collection for Digital Potentiometer (`timer_testsuite.py`)
 
-Records 10 measurements per wiper value. Used to generate input data for the calibration scripts.
+Sweeps through digital potentiometer range automatically and records 10 measurements per wiper value. Used to generate input data for the calibration scripts.
 
 ```bash
 python3 timer_testuite.py
