@@ -6,7 +6,11 @@
 
 ## Introduction
 
-This folder contains demonstration software for the RC-circuit TDC project. The intended demonstration is a live, interactive Pong game in which the resistance measured by the FPGA directly controls paddle movement — providing a tangible, real-time visualisation of the measurement system in action.
+This folder contains demonstration software for the RC-circuit TDC project. The intended demonstration is a live, interactive Pong game in which the resistance measured by the FPGA directly controls paddle movement — providing a tangible, real-time visualisation of the measurement system in action. 
+
+> **Third-party code:** The source code for the pong game was taken from a repository by DavidSerranoFranco:  
+> [https://github.com/DavidSerranoFranco/PongGame-Python](https://github.com/DavidSerranoFranco/PongGame-Python)  
+> The code was adapted to take a streamed TCP input from the Raspberry Pi, which corresponds to an analogue potentiometers position measured via an FPGA deploying the 50 MHz Verilog system.
 
 The Pong game application (`PongGame-Python-main/`) is currently a standalone game with keyboard and AI controls. **The integration layer that connects the FPGA/Raspberry Pi data stream to the game is not yet implemented** and is planned as a future addition. When complete, the system will work as follows:
 
