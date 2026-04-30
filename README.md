@@ -9,7 +9,7 @@
 
 This project implements a Time-to-Digital Converter (TDC) on an Intel/Altera MAX 10 FPGA to measure an unknown resistance in an RC circuit. The FPGA applies a voltage step to the circuit and counts clock cycles until the capacitor voltage crosses a threshold; this count is directly proportional to the RC time constant and therefore to the unknown resistance. The raw count is transmitted over UART to a Raspberry Pi, where it is converted to a resistance value using calibration data.
 
-Three FPGA implementations are provided, each offering greater measurement precision: a baseline 50 MHz design, a 200 MHz design using an on-chip PLL, and a Multi-Phase TDC (MPTDC) design that achieves approximately 800 MHz effective resolution by summing counter values from four 90°-offset clock phases. Supporting Python scripts handle data collection on the Raspberry Pi, system calibration, and a planned live demonstration application.
+Three FPGA implementations are provided, each offering greater measurement precision: a baseline 50 MHz design, a 200 MHz design using an on-chip PLL, and a Multi-Phase TDC (MPTDC) design that achieves approximately 800 MHz effective resolution by summing counter values from four 90°-offset clock phases. Supporting Python scripts handle data collection on the Raspberry Pi, system calibration, and a planned live demonstration application. The code, and README files, were written with the aid of Claude AI.
 
 ---
 
