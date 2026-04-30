@@ -83,8 +83,8 @@ Requires Python 3 and the following packages. Run on the Raspberry Pi:
 ```bash
 sudo apt-get update
 sudo apt-get install python3-pip python3-serial
-pip3 install RPi.GPIO pyserial adafruit-circuitpython-ds3502
 ```
+To install the library required to program the digital potentiometer see: https://cdn-learn.adafruit.com/downloads/pdf/ds3502-i2c-potentiometer.pdf
 
 Enable the hardware UART on the Raspberry Pi by adding `enable_uart=1` to `/boot/config.txt` and disabling the serial console via `raspi-config` (Interface Options → Serial Port → disable console, enable hardware serial).
 
