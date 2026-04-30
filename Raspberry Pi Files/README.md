@@ -48,8 +48,8 @@ Also add `enable_uart=1` to `/boot/config.txt` and reboot.
 ```bash
 sudo apt-get update
 sudo apt-get install python3-pip python3-serial
-pip3 install RPi.GPIO pyserial adafruit-circuitpython-ds3502
 ```
+To install the library required to program the digital potentiometer see: https://cdn-learn.adafruit.com/downloads/pdf/ds3502-i2c-potentiometer.pdf
 
 > **Note:** `adafruit-circuitpython-ds3502` is only required by `timer_fixed_resistor.py`, `timer_std_dev.py`, and `timer_stream.py`. These scripts import it but do not use it in their current form — it is a leftover import from an earlier version that used a DS3502 digital potentiometer. It can be safely ignored if the DS3502 is not connected.
 
