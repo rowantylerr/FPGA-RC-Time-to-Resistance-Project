@@ -157,3 +157,4 @@ Byte 3: bits 31:24  (most significant)
 
 - Calibration requires manual measurement of known resistors and re-running the calibration scripts each time the hardware configuration changes.
 - The 50 MHz design has no minimum discharge-time guard, which can cause instability at very low resistance values (see the 200 MHz and MPTDC designs for the fix).
+- The MPTDC implementation is not able to obtain accuracies comparable to the 200 MHz and 50 MHz implementations. There is likely a bug in the code that has not been found and resolved.
