@@ -94,7 +94,7 @@ try:
 		# Wait a moment for resistance to settle
 		time.sleep(0.1)
 
-		for j in range(10):
+		for j in range(100):
 
 			# Run FPGA measurement
 			fpga_resistance = run_measurement_cycle()
