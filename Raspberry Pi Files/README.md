@@ -40,7 +40,7 @@ Also add `enable_uart=1` to `/boot/config.txt` and reboot.
 | `timer_std_dev.py`        | Collect 1000 counts (uses DS3502 digital potentiometer)              | `std_dev_output.txt` |
 | `timer_std_dev_fixed.py`  | Collect 1000 counts (fixed resistor, no DS3502)                     | `std_dev_output.txt` |
 | `timer_stream.py`         | Stream live counts over TCP to a remote laptop                       | (network only)       |
-| `timer_testsuite.py`      | Collect 10 raw counts at each wiper value of the potentiometer      | `testsuite_output.txt` |
+| `timer_testsuite.py`      | Collect 100 raw counts at each wiper value of the potentiometer      | `testsuite_output.txt` |
 
 ---
 
@@ -74,7 +74,7 @@ The script will prompt for a resistance value, collect 100 FPGA counts, then pro
 
 ### Calibration Data Collection for Digital Potentiometer (`timer_testsuite.py`)
 
-Sweeps through digital potentiometer range automatically and records 10 measurements per wiper value. Used to generate input data for the calibration scripts.
+Sweeps through digital potentiometer range automatically and records 100 measurements per wiper value. Used to generate input data for the calibration scripts.
 
 ```bash
 python3 timer_testuite.py
@@ -83,7 +83,7 @@ python3 timer_testuite.py
 Press `Ctrl+C` to stop. Results are appended to `testsuite_output.txt` in the format:
 
 ```
-<wiper_value> <count_1> <count_2> ... <count_10>
+<wiper_value> <count_1> <count_2> ... <count_100>
 ```
 
 ---
