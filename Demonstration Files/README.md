@@ -28,7 +28,7 @@ The system works as follows:
   └──────────┘    └──────────┘    └────────────────────┘   └──────────┘
        ▲                                                        │
        │                    Resistance value                    │
-       └──────────────── controls paddle position ◄────────────┘
+       └──────────────── controls paddle position ◄─────────────┘
 ```
 
 ---
@@ -60,16 +60,16 @@ pip install pygame
 
 ### With the Raspberry Pi connected (full demonstration)
 
-1. Start `timer_stream.py` on the Raspberry Pi (see `Raspberry Pi Files/`).
-2. Run the Pong game on this PC:
+1. Run the Pong game on this PC:
 
 ```bash
 cd "Demonstration Files/PongGame-Python-main"
-python index.py
+python3 index.py
 ```
 
-3. The game will display a **"Waiting for Raspberry Pi connection..."** screen,
+2. The game will display a **"Waiting for Raspberry Pi connection..."** screen,
    showing the PC's IP address and port. Enter that IP on the Pi to connect.
+3. Start `timer_stream.py` on the Raspberry Pi (see `Raspberry Pi Files/`).
 4. Once connected, the main menu appears and the game can begin.
    Moving the physical sensor (potentiometer / RC circuit) controls the left paddle.
 
