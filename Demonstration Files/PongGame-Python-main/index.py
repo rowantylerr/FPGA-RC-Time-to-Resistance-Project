@@ -1,10 +1,32 @@
+# =============================================================================
+# ATTRIBUTION
+# Original source: "PongGame-Python" by DavidSerranoFranco
+# Repository: https://github.com/DavidSerranoFranco/PongGame-Python
+#
+# ADAPTATIONS made by Rowan Tyler (2026):
+#   1. Added TCP socket receiver (socket_receiver_thread) to stream real-time
+#      resistance values from a Raspberry Pi over Wi-Fi.
+#   2. Added Raspberry Pi configuration constants (PI_HOST, PI_PORT,
+#      PI_MIN_VALUE, PI_MAX_VALUE) to make the sensor range easy to adjust.
+#   3. Added show_waiting_screen() — a pre-game screen that blocks until the
+#      Pi connects, displaying the PC IP and port for easy setup.
+#   4. Replaced keyboard control (W/S keys) for Player 1's paddle with a
+#      direct linear mapping from the incoming Pi sensor value to paddle
+#      Y-position (game_loop, lines marked ADAPTED below).
+#   5. Updated main() to launch the socket thread and waiting screen before
+#      the main menu.
+# =============================================================================
+
 import pygame as pg
+# ADDED: socket and threading are required for the TCP receiver (adaptation)
+import socket
+import threading
 
 # Initialize pygame
 pg.init()
 pg.mixer.init()
 
-# Constants
+# Constants — ORIGINAL (unchanged from source)
 WIDTH_WINDOW = 900
 HEIGHT_WINDOW = 600
 WHITE = (255, 255, 255)
@@ -13,6 +35,50 @@ BLUE = (70, 150, 180)
 RED = (200, 70, 90)
 BLACK = (0, 0, 0)
 SPEED = 7
+
+# --- ADDED: Raspberry Pi TCP configuration ---
+# Adjust PI_MIN_VALUE and PI_MAX_VALUE to match your sensor's output range.
+PI_HOST = ''        # Listen on all available network interfaces
+PI_PORT = 65432     # Must match the port in your Pi script
+PI_MIN_VALUE = 0        # Minimum resistance value the Pi sensor outputs (Ohms)
+PI_MAX_VALUE = 20000    # Maximum resistance value the Pi sensor outputs (Ohms)
+
+# ADDED: Shared state updated by the background socket thread
+latest_pi_value = PI_MIN_VALUE  # Holds the most recent value from the Pi
+pi_connected = False             # Set to True once the Pi establishes a connection
+
+
+# ADDED: New function — not present in the original source.
+# Runs in a daemon thread; receives newline-delimited float values from the Pi
+# and writes them to latest_pi_value so the game loop can read them.
+def socket_receiver_thread():
+    """Background thread: receives sensor values from the Raspberry Pi via TCP."""
+    global latest_pi_value, pi_connected
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((PI_HOST, PI_PORT))
+        s.listen()
+        print(f"Waiting for Pi on port {PI_PORT}...")
+        conn, addr = s.accept()
+        pi_connected = True
+        print(f"Pi connected from {addr}")
+        with conn:
+            buffer = ""
+            while True:
+                try:
+                    data = conn.recv(1024).decode()
+                    if not data:
+                        break
+                    buffer += data
+                    while "\n" in buffer:
+                        line, buffer = buffer.split("\n", 1)
+                        try:
+                            latest_pi_value = float(line.strip())
+                        except ValueError:
+                            continue
+                except Exception as e:
+                    print(f"Connection error: {e}")
+                    break
 
 # Initialize window
 window = pg.display.set_mode((WIDTH_WINDOW, HEIGHT_WINDOW))
@@ -43,6 +109,32 @@ def draw_text(text, font, color, y_offset=0):
     window.blit(text_surface, text_rect)
 
 
+# ADDED: New function — not present in the original source.
+# Displayed before the main menu; loops until pi_connected is True.
+def show_waiting_screen():
+    """Block until the Raspberry Pi connects, showing a clear status message."""
+    clock = pg.time.Clock()
+    dot_count = 0
+    dot_timer = 0
+    local_ip = socket.gethostbyname(socket.gethostname())
+    while not pi_connected:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                quit()
+        dot_timer += clock.tick(30)
+        if dot_timer >= 500:
+            dot_count = (dot_count + 1) % 4
+            dot_timer = 0
+        window.fill(BLACK)
+        draw_text('PONG', big_font, WHITE, -180)
+        draw_text('Waiting for Raspberry Pi connection' + '.' * dot_count, font, WHITE, -60)
+        draw_text(f'This PC IP: {local_ip}   Port: {PI_PORT}', font, WHITE, -10)
+        draw_text('Press Q to Quit', font, WHITE, 60)
+        pg.display.flip()
+
+
+# ORIGINAL function — unchanged from source.
 def show_main_menu():
     """Display the main menu and return the selected game mode."""
     while True:
@@ -66,6 +158,7 @@ def show_main_menu():
                     pg.quit()
                     quit()
 
+# ORIGINAL function — unchanged from source.
 def show_points_menu():
     """Display the points menu and return the selected winning score."""
     while True:
@@ -89,6 +182,7 @@ def show_points_menu():
                     pg.quit()
                     quit()
 
+# ORIGINAL function — unchanged from source.
 def show_restart_menu():
     """Display the restart menu and return the user's choice."""
     while True:
@@ -112,6 +206,7 @@ def show_restart_menu():
                     pg.quit()
                     quit()
 
+# ORIGINAL function — unchanged from source.
 def ai_move(paddle, ball, speed):
     """Simple AI to move the paddle towards the ball."""
     if paddle.centery < ball.centery:
@@ -125,6 +220,7 @@ def ai_move(paddle, ball, speed):
     if paddle.bottom > HEIGHT_WINDOW:
         paddle.bottom = HEIGHT_WINDOW
 
+# ORIGINAL function — unchanged from source.
 def reset_ball(ball, ball_speed_x, ball_speed_y):
     """Reset the ball to the center and reverse its direction."""
     ball.x = WIDTH_WINDOW // 2
@@ -132,6 +228,8 @@ def reset_ball(ball, ball_speed_x, ball_speed_y):
     return ball_speed_x * -1, ball_speed_y * -1
 
 
+# ADAPTED function — structure and logic from original source; paddle 1 input
+# replaced with Pi sensor mapping (see ADAPTED block inside).
 def game_loop(winning_score, game_mode):
     """Main game loop."""
     p1_x, p1_y = 50, 250
@@ -156,12 +254,17 @@ def game_loop(winning_score, game_mode):
                 pg.quit()
                 quit()
 
-        keys = pg.key.get_pressed()
-        if keys[pg.K_w] and paddle_p1.top > 0:
-            paddle_p1.y -= SPEED
-        if keys[pg.K_s] and paddle_p1.bottom < HEIGHT_WINDOW:
-            paddle_p1.y += SPEED
+        # --- ADAPTED: replaced original W/S keyboard control for Player 1 ---
+        # Original code read pg.key.get_pressed() and moved the paddle by SPEED
+        # pixels per frame. Replaced with a direct linear mapping from the Pi
+        # sensor value onto the full paddle travel range (0 to HEIGHT_WINDOW -
+        # paddle height), so physical sensor position equals paddle position.
+        clamped = max(PI_MIN_VALUE, min(PI_MAX_VALUE, latest_pi_value))
+        paddle_p1.y = int((clamped - PI_MIN_VALUE) / (PI_MAX_VALUE - PI_MIN_VALUE)
+                          * (HEIGHT_WINDOW - paddle_p1.height))
+        # --- END ADAPTED ---
 
+        keys = pg.key.get_pressed()
         if game_mode == '2p':
             if keys[pg.K_UP] and paddle_p2.top > 0:
                 paddle_p2.y -= SPEED
@@ -204,10 +307,19 @@ def game_loop(winning_score, game_mode):
     return choice
 
 
+# ADAPTED function — original only called show_main_menu() and game_loop().
+# Added: launch of socket_receiver_thread and show_waiting_screen() before
+# the main menu, so the Pi must connect before the game can be started.
 def main():
     """Main function to handle the game flow."""
+    # ADDED: start the background TCP receiver thread before showing any menus
+    thread = threading.Thread(target=socket_receiver_thread, daemon=True)
+    thread.start()
+    # ADDED: block here until the Pi connects
+    show_waiting_screen()
+
     while True:
-        game_mode = show_main_menu()  # Mostrar el menú principal
+        game_mode = show_main_menu()
 
         if game_mode == '2p':
             winning_score = show_points_menu()  # Mostrar el menú de puntos para 2 jugadores
